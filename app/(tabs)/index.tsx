@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   balanceAmount: {
-    fontSize: 36,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#212121',
     marginBottom: 8,
