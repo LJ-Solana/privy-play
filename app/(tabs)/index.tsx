@@ -4,35 +4,36 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { HelloWave } from '@/components/HelloWave';
 
 const { width } = Dimensions.get('window');
-const buttonWidth = (width - 64) / 3;
+const buttonWidth = (width - 48) / 3 - 8;
+const buttonHeight = 80;
 
 export default function HomeScreen() {
   return (
-    <ThemedView style={styles.container}>
+    <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <LinearGradient
           colors={['#1a237e', '#3949ab']}
           style={styles.header}
         >
-          <ThemedText style={styles.greeting}>Welcome, LJ</ThemedText>
+          <ThemedText style={styles.greeting}>Welcome, LJ<HelloWave /></ThemedText>
           <TouchableOpacity style={styles.notificationIcon}>
             <Ionicons name="notifications-outline" size={24} color="#ffffff" />
           </TouchableOpacity>
         </LinearGradient>
         
-        <ThemedView style={styles.balanceCard}>
+        <View style={styles.balanceCard}>
           <ThemedText style={styles.balanceLabel}>Total Balance</ThemedText>
           <ThemedText style={styles.balanceAmount}>$12,345.67</ThemedText>
           <View style={styles.balanceChangeContainer}>
             <Ionicons name="arrow-up" size={16} color="#4CAF50" />
             <ThemedText style={styles.balanceChange}>2.5% today</ThemedText>
           </View>
-        </ThemedView>
+        </View>
         
-        <ThemedView style={styles.actionsContainer}>
+        <View style={styles.actionsContainer}>
           {['Send', 'Receive', 'Swap'].map((action, index) => (
             <TouchableOpacity key={action} style={styles.actionButton}>
               <LinearGradient
@@ -48,27 +49,27 @@ export default function HomeScreen() {
               </LinearGradient>
             </TouchableOpacity>
           ))}
-        </ThemedView>
+        </View>
         
-        <ThemedView style={styles.assetsContainer}>
+        <View style={styles.assetsContainer}>
           <ThemedText style={styles.assetsTitle}>Your Assets</ThemedText>
           {[
             { name: 'Bitcoin', icon: 'logo-bitcoin', color: '#F7931A', balance: '0.5 BTC', value: '$15,000' },
             { name: 'Twitter', icon: 'logo-twitter', color: '#1DA1F2', balance: '2.5 Shares', value: '$5,000' },
             { name: 'Tether', icon: 'ellipse', color: '#26A17B', balance: '1000 USDT', value: '$1,000' },
           ].map((asset, index) => (
-            <ThemedView key={asset.name} style={[styles.assetItem, index === 2 && styles.lastAssetItem]}>
+            <View key={asset.name} style={[styles.assetItem, index === 2 && styles.lastAssetItem]}>
               <View style={[styles.assetIcon, { backgroundColor: asset.color }]}>
-                <Ionicons name={asset.icon} size={20} color="#fff" />
+                <Ionicons name={asset.icon as any} size={20} color="#fff" />
               </View>
               <ThemedText style={styles.assetName}>{asset.name}</ThemedText>
               <ThemedText style={styles.assetBalance}>{asset.balance}</ThemedText>
               <ThemedText style={styles.assetValue}>{asset.value}</ThemedText>
-            </ThemedView>
+            </View>
           ))}
-        </ThemedView>
+        </View>
       </ScrollView>
-    </ThemedView>
+    </View>
   );
 }
 
@@ -85,8 +86,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingTop: 48,
-    paddingBottom: 24,
+    paddingTop: 64,
+    paddingBottom: 48, 
   },
   greeting: {
     fontSize: 24,
@@ -100,7 +101,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderRadius: 16,
     marginHorizontal: 16,
-    marginTop: -24,
+    marginTop: -16,
     padding: 24,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -136,7 +137,7 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     width: buttonWidth,
-    height: buttonWidth,
+    height: buttonHeight,
     borderRadius: 16,
     overflow: 'hidden',
   },
