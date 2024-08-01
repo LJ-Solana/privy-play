@@ -83,10 +83,10 @@ export default function ActivityScreen() {
       case 'Payment':
         type = transaction.Account === XRP_WALLET_ADDRESS ? 'Sent' : 'Received';
         if (typeof transaction.Amount === 'object') {
-          amount = transaction.Amount.value;
+          amount = parseFloat(transaction.Amount.value).toFixed(2);
           currency = transaction.Amount.currency;
         } else {
-          amount = (transaction.Amount / 1000000).toString();
+          amount = (parseFloat(transaction.Amount) / 1000000).toFixed(2);
           currency = 'XRP';
         }
         amount = type === 'Sent' ? `-${amount}` : `+${amount}`;
@@ -95,14 +95,14 @@ export default function ActivityScreen() {
         break;
       case 'TrustSet':
         type = 'Trust Line Set';
-        amount = transaction.LimitAmount.value;
+        amount = parseFloat(transaction.LimitAmount.value).toFixed(2);
         currency = transaction.LimitAmount.currency;
         recipient = transaction.LimitAmount.issuer;
         break;
       // Add other cases as needed
       default:
         type = transaction.TransactionType;
-        amount = 'Unknown';
+        amount = '0.000000';
         currency = '';
     }
 

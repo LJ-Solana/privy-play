@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, ScrollView, TouchableOpacity, Dimensions, View, Modal, Image, Animated, SafeAreaView, Platform, Text } from 'react-native';
+import { StyleSheet, ScrollView, TouchableOpacity, Dimensions, View, Modal, Image, Animated, SafeAreaView, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#FFFFF',
+    color: '#FFFFFF',
     alignItems: 'center'
   },
   notificationIcon: {
