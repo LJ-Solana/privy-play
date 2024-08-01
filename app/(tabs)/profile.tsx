@@ -1,8 +1,6 @@
 import React from 'react';
-import { StyleSheet, View, ScrollView, TouchableOpacity, Image, SafeAreaView } from 'react-native';
+import { StyleSheet, View, ScrollView, TouchableOpacity, Image, SafeAreaView, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
-import { ThemedText } from '@/components/ThemedText';
 
 export default function ProfileScreen() {
   const userInfo = {
@@ -23,37 +21,29 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <LinearGradient
-          colors={['#1a237e', '#3949ab']}
-          style={styles.header}
-        >
-          <ThemedText style={styles.headerTitle}>Profile</ThemedText>
-        </LinearGradient>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Profile</Text>
+        </View>
         
         <ScrollView style={styles.content}>
           <View style={styles.profileInfo}>
             <Image source={{ uri: userInfo.avatar }} style={styles.avatar} />
-            <ThemedText style={styles.name}>{userInfo.name}</ThemedText>
-            <ThemedText style={styles.email}>{userInfo.email}</ThemedText>
+            <Text style={styles.name}>{userInfo.name}</Text>
+            <Text style={styles.email}>{userInfo.email}</Text>
           </View>
 
           <View style={styles.menuContainer}>
             {menuItems.map((item, index) => (
               <TouchableOpacity key={index} style={styles.menuItem}>
-                <Ionicons name={item.icon as keyof typeof Ionicons.glyphMap} size={24} color="#3949ab" />
-                <ThemedText style={styles.menuItemText}>{item.title}</ThemedText>
+                <Ionicons name={item.icon as keyof typeof Ionicons.glyphMap} size={24} color="#BB86FC" />
+                <Text style={styles.menuItemText}>{item.title}</Text>
                 <Ionicons name="chevron-forward" size={24} color="#757575" />
               </TouchableOpacity>
             ))}
           </View>
 
           <TouchableOpacity style={styles.logoutButton}>
-            <LinearGradient
-              colors={['#3949ab', '#5c6bc0']}
-              style={styles.logoutGradient}
-            >
-              <ThemedText style={styles.logoutText}>Log Out</ThemedText>
-            </LinearGradient>
+            <Text style={styles.logoutText}>Log Out</Text>
           </TouchableOpacity>
         </ScrollView>
       </View>
@@ -64,20 +54,22 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#1a237e',
+    backgroundColor: '#121212',
   },
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#121212',
   },
   header: {
     padding: 20,
     paddingTop: 16,
+    backgroundColor: '#1E1E1E',
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#BB86FC',
+    textAlign: 'center',
   },
   content: {
     flex: 1,
@@ -85,9 +77,9 @@ const styles = StyleSheet.create({
   profileInfo: {
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#1E1E1E',
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#333333',
   },
   avatar: {
     width: 100,
@@ -98,14 +90,14 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#212121',
+    color: '#FFFFFF',
   },
   email: {
     fontSize: 16,
-    color: '#757575',
+    color: '#BB86FC',
   },
   menuContainer: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#1E1E1E',
     marginTop: 20,
   },
   menuItem: {
@@ -113,24 +105,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#333333',
   },
   menuItemText: {
     flex: 1,
     marginLeft: 15,
     fontSize: 16,
-    color: '#212121',
+    color: '#FFFFFF',
   },
   logoutButton: {
     margin: 20,
-  },
-  logoutGradient: {
+    backgroundColor: '#BB86FC',
     borderRadius: 8,
     padding: 15,
     alignItems: 'center',
   },
   logoutText: {
-    color: '#ffffff',
+    color: '#000000',
     fontSize: 16,
     fontWeight: 'bold',
   },
