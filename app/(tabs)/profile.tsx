@@ -61,7 +61,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#1E1E1E',
   },
   header: {
-    padding: 20,
     paddingTop: 16,
     backgroundColor: '#1E1E1E',
   },
@@ -85,7 +84,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    marginBottom: 10,
+    marginBottom: 12,
   },
   name: {
     fontSize: 20,

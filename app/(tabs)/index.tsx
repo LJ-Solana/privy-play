@@ -139,7 +139,7 @@ export default function HomeScreen() {
           <View style={styles.header}>
               <Text style={styles.greeting}>Welcome, LJ</Text>
             <TouchableOpacity onPress={handleNotificationsPress}>
-              <Ionicons name="notifications-outline" size={24} color="#BB86FC" />
+              <Ionicons name="notifications-outline" size={24} color="#FFFFFF"/>
             </TouchableOpacity>
           </View>
           
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#BB86FC',
+    color: '#FFFFFF',
     alignItems: 'center'
   },
   notificationIcon: {

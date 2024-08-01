@@ -4,10 +4,15 @@ import { Ionicons } from '@expo/vector-icons';
 
 export default function ActivityScreen() {
   const transactions = [
-    { id: 1, type: 'Sent', amount: '100 XRP', recipient: 'Alice', date: '2023-05-01', status: 'Completed' },
-    { id: 2, type: 'Received', amount: '50 XRP', sender: 'Bob', date: '2023-04-28', status: 'Completed' },
-    { id: 3, type: 'Swapped', amount: '200 XRP', to: '0.5 ETH', date: '2023-04-25', status: 'Completed' },
-    { id: 4, type: 'Sent', amount: '75 XRP', recipient: 'Charlie', date: '2023-04-20', status: 'Pending' },
+    { id: 1, type: 'Swapped', amount: '+30,973.89986 USDC', secondaryAmount: '-174.60275 SOL', platform: 'Jupiter', date: 'Yesterday' },
+    { id: 2, type: 'Swapped', amount: '+164.7055 SOL', secondaryAmount: '-30,000.03266 PYUSD', platform: 'Jupiter', date: 'Yesterday' },
+    { id: 3, type: 'Sent', amount: '-125.92M MUMU', recipient: 'LJ Hot (LJ2X...Vnqq)', date: 'Yesterday' },
+    { id: 4, type: 'Swapped', amount: '+325.92M MUMU', secondaryAmount: '-30,000.03266 PYUSD', platform: 'Jupiter', date: 'Yesterday' },
+    { id: 5, type: 'Received', amount: '+< 0.00001 SOL', sender: '2RMY...Vnqq', date: 'Yesterday' },
+    { id: 6, type: 'Received', amount: '+9.8 SOL', sender: 'LJ Hot (LJ2X...Vnqq)', date: 'Yesterday' },
+    { id: 7, type: 'Received', amount: '+< 0.00001 SOL', sender: 'Habp...4E96', date: 'Yesterday' },
+    { id: 8, type: 'Received', amount: '+< 0.00001 SOL', sender: 'FLiP...eaZ7', date: 'Yesterday' },
+    { id: 9, type: 'Sent', amount: '-2.119 PYUSD', recipient: 'Unknown', date: 'Yesterday' },
   ];
 
   const getTransactionIcon = (type: string): string => {
@@ -23,37 +28,37 @@ export default function ActivityScreen() {
     }
   };
 
-  const sortedTransactions = [...transactions].sort((a, b) => {
-    if (a.status === 'Pending' && b.status !== 'Pending') return -1;
-    return 0;
-  });
-
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Activity</Text>
+          <Text style={styles.headerTitle}>Recent Activity</Text>
+          <TouchableOpacity>
+            <Ionicons name="ellipsis-horizontal" size={24} color="#fff" />
+          </TouchableOpacity>
         </View>
         <ScrollView style={styles.content}>
-          {sortedTransactions.map((transaction) => (
-            <TouchableOpacity key={transaction.id} style={styles.transactionItem}>
-              <View style={styles.transactionIcon}>
-                <Ionicons name={getTransactionIcon(transaction.type) as keyof typeof Ionicons.glyphMap} size={24} color="#BB86FC" />
+          <Text style={styles.dateHeader}>Yesterday</Text>
+          {transactions.map((transaction) => (
+            <View key={transaction.id} style={styles.transactionItem}>
+              <View style={styles.transactionIconContainer}>
+                <Ionicons name={getTransactionIcon(transaction.type)} size={24} color="#fff" />
               </View>
               <View style={styles.transactionInfo}>
                 <Text style={styles.transactionType}>{transaction.type}</Text>
-                <Text style={styles.transactionAmount}>{transaction.amount}</Text>
-                <Text style={styles.transactionDate}>{transaction.date}</Text>
+                {transaction.platform && <Text style={styles.transactionPlatform}>{transaction.platform}</Text>}
+                {transaction.recipient && <Text style={styles.transactionRecipient}>To {transaction.recipient}</Text>}
+                {transaction.sender && <Text style={styles.transactionSender}>From {transaction.sender}</Text>}
               </View>
-              <View style={styles.transactionStatus}>
-                <Text style={[
-                  styles.statusText,
-                  { color: transaction.status === 'Completed' ? '#03DAC6' : '#FF7597' }
-                ]}>
-                  {transaction.status}
+              <View style={styles.transactionAmounts}>
+                <Text style={[styles.transactionAmount, { color: transaction.amount.startsWith('+') ? '#4CAF50' : '#fff' }]}>
+                  {transaction.amount}
                 </Text>
+                {transaction.secondaryAmount && (
+                  <Text style={styles.transactionSecondaryAmount}>{transaction.secondaryAmount}</Text>
+                )}
               </View>
-            </TouchableOpacity>
+            </View>
           ))}
         </ScrollView>
       </View>
@@ -71,31 +76,40 @@ const styles = StyleSheet.create({
     backgroundColor: '#121212',
   },
   header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     padding: 16,
+    paddingTop: 8,
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#BB86FC',
-    textAlign: 'center',
+    color: '#fff',
   },
   content: {
     flex: 1,
-    padding: 16,
+    paddingHorizontal: 16,
+  },
+  dateHeader: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#888',
+    marginBottom: 8,
   },
   transactionItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1E1E1E',
-    borderRadius: 8,
+    backgroundColor: '#1c1c1e',
+    borderRadius: 12,
     padding: 16,
     marginBottom: 8,
   },
-  transactionIcon: {
-    backgroundColor: '#2C2C2C',
+  transactionIconContainer: {
+    backgroundColor: '#3a3a3c',
     borderRadius: 20,
     padding: 8,
-    marginRight: 16,
+    marginRight: 12,
   },
   transactionInfo: {
     flex: 1,
@@ -103,23 +117,33 @@ const styles = StyleSheet.create({
   transactionType: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#fff',
+  },
+  transactionPlatform: {
+    fontSize: 14,
+    color: '#888',
+    marginTop: 2,
+  },
+  transactionRecipient: {
+    fontSize: 14,
+    color: '#888',
+    marginTop: 2,
+  },
+  transactionSender: {
+    fontSize: 14,
+    color: '#888',
+    marginTop: 2,
+  },
+  transactionAmounts: {
+    alignItems: 'flex-end',
   },
   transactionAmount: {
     fontSize: 14,
-    color: '#BB86FC',
-    marginTop: 4,
-  },
-  transactionDate: {
-    fontSize: 12,
-    color: '#757575',
-    marginTop: 4,
-  },
-  transactionStatus: {
-    marginLeft: 16,
-  },
-  statusText: {
-    fontSize: 12,
     fontWeight: 'bold',
+  },
+  transactionSecondaryAmount: {
+    fontSize: 14,
+    color: '#888',
+    marginTop: 2,
   },
 });
