@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, View, ScrollView, TouchableOpacity, Image, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ThemedText } from '@/components/ThemedText';
@@ -21,52 +21,58 @@ export default function ProfileScreen() {
   ];
 
   return (
-    <View style={styles.container}>
-      <LinearGradient
-        colors={['#1a237e', '#3949ab']}
-        style={styles.header}
-      >
-        <ThemedText style={styles.headerTitle}>Profile</ThemedText>
-      </LinearGradient>
-      
-      <ScrollView style={styles.content}>
-        <View style={styles.profileInfo}>
-          <Image source={{ uri: userInfo.avatar }} style={styles.avatar} />
-          <ThemedText style={styles.name}>{userInfo.name}</ThemedText>
-          <ThemedText style={styles.email}>{userInfo.email}</ThemedText>
-        </View>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <LinearGradient
+          colors={['#1a237e', '#3949ab']}
+          style={styles.header}
+        >
+          <ThemedText style={styles.headerTitle}>Profile</ThemedText>
+        </LinearGradient>
+        
+        <ScrollView style={styles.content}>
+          <View style={styles.profileInfo}>
+            <Image source={{ uri: userInfo.avatar }} style={styles.avatar} />
+            <ThemedText style={styles.name}>{userInfo.name}</ThemedText>
+            <ThemedText style={styles.email}>{userInfo.email}</ThemedText>
+          </View>
 
-        <View style={styles.menuContainer}>
-          {menuItems.map((item, index) => (
-            <TouchableOpacity key={index} style={styles.menuItem}>
-              <Ionicons name={item.icon} size={24} color="#3949ab" />
-              <ThemedText style={styles.menuItemText}>{item.title}</ThemedText>
-              <Ionicons name="chevron-forward" size={24} color="#757575" />
-            </TouchableOpacity>
-          ))}
-        </View>
+          <View style={styles.menuContainer}>
+            {menuItems.map((item, index) => (
+              <TouchableOpacity key={index} style={styles.menuItem}>
+                <Ionicons name={item.icon as keyof typeof Ionicons.glyphMap} size={24} color="#3949ab" />
+                <ThemedText style={styles.menuItemText}>{item.title}</ThemedText>
+                <Ionicons name="chevron-forward" size={24} color="#757575" />
+              </TouchableOpacity>
+            ))}
+          </View>
 
-        <TouchableOpacity style={styles.logoutButton}>
-          <LinearGradient
-            colors={['#3949ab', '#5c6bc0']}
-            style={styles.logoutGradient}
-          >
-            <ThemedText style={styles.logoutText}>Log Out</ThemedText>
-          </LinearGradient>
-        </TouchableOpacity>
-      </ScrollView>
-    </View>
+          <TouchableOpacity style={styles.logoutButton}>
+            <LinearGradient
+              colors={['#3949ab', '#5c6bc0']}
+              style={styles.logoutGradient}
+            >
+              <ThemedText style={styles.logoutText}>Log Out</ThemedText>
+            </LinearGradient>
+          </TouchableOpacity>
+        </ScrollView>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#1a237e',
+  },
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
   header: {
     padding: 20,
-    paddingTop: 40,
+    paddingTop: 16,
   },
   headerTitle: {
     fontSize: 24,
