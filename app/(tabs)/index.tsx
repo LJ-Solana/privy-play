@@ -108,14 +108,12 @@ export default function HomeScreen() {
           </LinearGradient>
           
           <View style={styles.balanceCard}>
-            <Text style={styles.balanceLabel}>XRP Balance</Text>
-            <Text style={styles.balanceAmount}>{xrpData.balance.toFixed(2)} XRP</Text>
-            <View style={styles.balanceChangeContainer}>
-              <Ionicons name="arrow-up" size={16} color="#4CAF50" />
-              <Text style={styles.balanceChange}>2.5% today</Text>
+            <Text style={styles.balanceLabel}>Account Balance</Text>
+            <Text style={styles.balanceAmount}>${(xrpData.balance * xrpData.price).toFixed(2)}</Text>
+            <View style={styles.balancePriceContainer}>
+              <Text style={styles.balancePrice}>{xrpData.balance.toFixed(2)} XRP </Text>
             </View>
           </View>
-          
           <View style={styles.actionsContainer}>
             {['Buy', 'Receive', 'Swap'].map((action, index) => (
               <TouchableOpacity key={action} style={styles.actionButton} onPress={index === 1 ? handleReceivePress : undefined}>
@@ -137,14 +135,18 @@ export default function HomeScreen() {
           <View style={styles.assetsContainer}>
             <Text style={styles.assetsTitle}>Your Assets</Text>
             {[
-              { name: 'Bitcoin', icon: 'logo-bitcoin', color: '#F7931A', balance: '0.5 BTC', value: '$15,000' },
-              { name: 'Twitter', icon: 'logo-twitter', color: '#1DA1F2', balance: '2.5 Shares', value: '$5,000' },
-              { name: 'Tether', icon: 'ellipse', color: '#26A17B', balance: '1000 USDT', value: '$1,000' },
+              { name: 'Bitcoin', icon: 'logo-bitcoin', color: '#F7931A', balance: '0.5 BTC', value: '$15,000', type: 'Your' },
+              { name: 'Twitter', icon: 'logo-twitter', color: '#1DA1F2', balance: '2.5 Shares', value: '$5,000', type: 'Your' },
+              { name: 'Tether', icon: 'ellipse', color: '#26A17B', balance: '1000 USDT', value: '$1,000', type: 'Your' },
+              { name: 'Trustlines', icon: 'logo-bitcoin', color: '#F7931A', balance: '0.5 BTC', value: '$15,000', type: 'Reserved' },
+              { name: 'IOUs', icon: 'ellipse', color: '#26A17B', balance: '1000 USDT', value: '$1,000', type: 'Reserved' },
             ].map((asset, index) => (
               <View key={asset.name} style={[styles.assetItem, index === 2 && styles.lastAssetItem]}>
-                <View style={[styles.assetIcon, { backgroundColor: asset.color }]}>
-                  <Ionicons name={asset.icon as any} size={20} color="#fff" />
-                </View>
+                {asset.type === 'Your' && (
+                  <View style={[styles.assetIcon, { backgroundColor: asset.color }]}>
+                    <Ionicons name={asset.icon as any} size={20} color="#fff" />
+                  </View>
+                )}
                 <Text style={styles.assetName}>{asset.name}</Text>
                 <Text style={styles.assetBalance}>{asset.balance}</Text>
                 <Text style={styles.assetValue}>{asset.value}</Text>
