@@ -54,11 +54,11 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#121212',
+    backgroundColor: '#1E1E1E',
   },
   container: {
     flex: 1,
-    backgroundColor: '#121212',
+    backgroundColor: '#1E1E1E',
   },
   header: {
     padding: 20,
