@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, ScrollView, TouchableOpacity, Dimensions, View, Modal, Image, Animated, SafeAreaView, Platform, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import axios from 'axios';
-
-import { HelloWave } from '@/components/HelloWave';
 
 interface XRPData {
   balance: number;
@@ -139,15 +136,12 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          <LinearGradient
-            colors={['#1a237e', '#3949ab']}
-            style={styles.header}
-          >
-            <Text style={styles.greeting}>Welcome, LJ<HelloWave /></Text>
-            <TouchableOpacity style={styles.notificationIcon} onPress={handleNotificationsPress}>
-              <Ionicons name="notifications-outline" size={24} color="#000" />
+          <View style={styles.header}>
+              <Text style={styles.greeting}>Welcome, LJ</Text>
+            <TouchableOpacity onPress={handleNotificationsPress}>
+              <Ionicons name="notifications-outline" size={24} color="#BB86FC" />
             </TouchableOpacity>
-          </LinearGradient>
+          </View>
           
           <View style={styles.balanceCard}>
             <Text style={styles.balanceLabel}>Account Balance</Text>
@@ -159,17 +153,14 @@ export default function HomeScreen() {
           <View style={styles.actionsContainer}>
             {['Buy', 'Receive', 'Swap'].map((action, index) => (
               <TouchableOpacity key={action} style={styles.actionButton} onPress={index === 1 ? handleReceivePress : undefined}>
-                <LinearGradient
-                  colors={['#3949ab', '#5c6bc0']}
-                  style={styles.actionGradient}
-                >
+                <View style={styles.actionContent}>
                   <Ionicons 
                     name={index === 0 ? "cart-outline" : index === 1 ? "arrow-down-outline" : "swap-horizontal-outline"} 
                     size={24} 
                     color="#fff" 
                   />
                   <Text style={styles.actionText}>{action}</Text>
-                </LinearGradient>
+                </View>
               </TouchableOpacity>
             ))}
           </View>
@@ -178,13 +169,15 @@ export default function HomeScreen() {
             {xrpData.trustLines && xrpData.trustLines.length > 0 ? (
               [
                 { currency: 'XRP', balance: xrpData.balance, price: xrpData.price, isTrustline: false },
-                ...xrpData.trustLines.map(line => ({
-                  ...line,
+                ...(xrpData.trustLines || []).map((line) => ({
+                  currency: line.currency,
+                  balance: line.balance,
+                  price: line.price,
                   isTrustline: true
                 }))
               ].map((asset, index, array) => (
                 <View key={asset.currency} style={[styles.assetItem, index === array.length - 1 && styles.lastAssetItem]}>
-                  <View style={[styles.assetIcon, { backgroundColor: asset.currency === 'XRP' ? '#3949ab' : '#5c6bc0' }]}>
+                  <View style={[styles.assetIcon, { backgroundColor: asset.currency === 'XRP' ? '#3700B3' : '#6200EE' }]}>
                     <Ionicons name={asset.currency === 'XRP' ? "logo-bitcoin" : "cash-outline"} size={20} color="#fff" />
                   </View>
                   <View style={styles.assetInfo}>
@@ -213,14 +206,14 @@ export default function HomeScreen() {
           </View>
        
           <Modal visible={showQRModal} animationType="slide">
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-              <View style={{ backgroundColor: '#f0f0f0', padding: 16, borderRadius: 8 }}>
-                <Image source={{ uri: 'https://placeholder.com/200x200' }} style={{ width: 200, height: 200 }} />
+            <View style={styles.qrModalContainer}>
+              <View style={styles.qrModalContent}>
+                <Image source={{ uri: 'https://placeholder.com/200x200' }} style={styles.qrImage} />
+                <Text style={styles.qrModalTitle}>Receive Funds</Text>
+                <TouchableOpacity onPress={() => setShowQRModal(false)} style={styles.qrModalCloseButton}>
+                  <Ionicons name="close" size={24} color="#BB86FC" />
+                </TouchableOpacity>
               </View>
-              <Text style={{ marginTop: 16, fontWeight: 'bold' }}>Receive Funds</Text>
-              <TouchableOpacity onPress={() => setShowQRModal(false)} style={{ position: 'absolute', top: 8, right: 0, padding: 16 }}>
-                <Ionicons name="close" size={24} color="#000" />
-              </TouchableOpacity>
             </View>
           </Modal>
 
@@ -235,14 +228,15 @@ export default function HomeScreen() {
                 <View style={styles.notificationsHeader}>
                   <Text style={styles.notificationsTitle}>Notifications</Text>
                   <TouchableOpacity onPress={closeNotifications} style={styles.closeButton}>
-                    <Ionicons name="close" size={24} color="#000" />
+                    <Ionicons name="close" size={24} color="#BB86FC" />
                   </TouchableOpacity>
                 </View>
+                
                 <ScrollView contentContainerStyle={styles.notificationsContent}>
                   {notifications.map((notification) => (
                     <View key={notification.id} style={styles.notificationItem}>
                       <View style={styles.notificationIcon}>
-                        <Ionicons name={notification.icon as keyof typeof Ionicons.glyphMap} size={24} color="#3949ab" />
+                        <Ionicons name={notification.icon as keyof typeof Ionicons.glyphMap} size={24} color="#BB86FC" />
                       </View>
                       <View style={styles.notificationContent}>
                         <Text style={styles.notificationTitle}>{notification.title}</Text>
@@ -264,14 +258,20 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#1a237e',
+    backgroundColor: '#121212',
   },
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#121212',
   },
   scrollContent: {
     paddingBottom: 24,
+  },
+  noDataText: {
+    fontSize: 16,
+    color: '#BB86FC',
+    textAlign: 'center',
+    marginTop: 16,
   },
   header: {
     flexDirection: 'row',
@@ -284,13 +284,14 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#BB86FC',
+    alignItems: 'center'
   },
   notificationIcon: {
     padding: 8,
   },
   balanceCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#1E1E1E',
     borderRadius: 16,
     marginHorizontal: 16,
     marginTop: -16,
@@ -303,13 +304,13 @@ const styles = StyleSheet.create({
   },
   balanceLabel: {
     fontSize: 16,
-    color: '#757575',
+    color: '#BB86FC',
     marginBottom: 8,
   },
   balanceAmount: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#212121',
+    color: '#ffffff',
     marginBottom: 8,
   },
   balanceChangeContainer: {
@@ -318,7 +319,7 @@ const styles = StyleSheet.create({
   },
   balanceChange: {
     fontSize: 14,
-    color: '#4CAF50',
+    color: '#03DAC6',
     marginLeft: 4,
   },
   balancePriceContainer: {
@@ -328,7 +329,7 @@ const styles = StyleSheet.create({
   },
   balancePrice: {
     fontSize: 14,
-    color: '#757575',
+    color: '#BB86FC',
   },
   actionsContainer: {
     flexDirection: 'row',
@@ -341,8 +342,9 @@ const styles = StyleSheet.create({
     height: buttonHeight,
     borderRadius: 16,
     overflow: 'hidden',
+    backgroundColor: '#BB86FC',
   },
-  actionGradient: {
+  actionContent: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
@@ -356,7 +358,7 @@ const styles = StyleSheet.create({
   assetsContainer: {
     marginHorizontal: 16,
     marginTop: 24,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#1E1E1E',
     borderRadius: 16,
     padding: 16,
     shadowColor: '#000',
@@ -369,14 +371,14 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 16,
-    color: '#212121',
+    color: '#ffffff',
   },
   assetItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: '#2C2C2C',
   },
   lastAssetItem: {
     borderBottomWidth: 0,
@@ -392,17 +394,17 @@ const styles = StyleSheet.create({
   assetName: {
     flex: 1,
     fontSize: 16,
-    color: '#212121',
+    color: '#ffffff',
   },
   assetBalance: {
     fontSize: 14,
-    color: '#757575',
+    color: '#BB86FC',
     marginRight: 8,
   },
   assetValue: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#212121',
+    color: '#ffffff',
   },
   currenciesContainer: {
     marginHorizontal: 16,
@@ -468,7 +470,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     width: '80%',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#1E1E1E',
     padding: 20,
     paddingTop: 40,
   },
@@ -567,8 +569,5 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#4CAF50',
     marginTop: 2,
-  },
-  infoButton: {
-    marginLeft: 8,
   },
 });

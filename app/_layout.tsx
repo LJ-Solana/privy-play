@@ -1,4 +1,4 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { DarkTheme, ThemeProvider } from '@react-navigation/native';
 import 'fast-text-encoding';
 import 'react-native-get-random-values';
 import '@ethersproject/shims';
@@ -9,13 +9,10 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { PrivyProvider } from '@privy-io/expo';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
-
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
@@ -30,9 +27,20 @@ export default function RootLayout() {
     return null;
   }
 
+  const customDarkTheme = {
+    ...DarkTheme,
+    colors: {
+      ...DarkTheme.colors,
+      background: '#121212',
+      card: '#1E1E1E',
+      text: '#FFFFFF',
+      border: '#2C2C2C',
+    },
+  };
+
   return (
     <PrivyProvider appId={'insert-your-privy-app-id'}>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <ThemeProvider value={customDarkTheme}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />

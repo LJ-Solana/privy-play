@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, TouchableOpacity, ScrollView, TextInput, Dimensions, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { ThemedText } from '@/components/ThemedText';
 
 const { width } = Dimensions.get('window');
@@ -20,17 +19,10 @@ export default function TokenSwapScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <LinearGradient
-          colors={['#1a237e', '#3949ab']}
-          style={styles.header}
-        >
-          <ThemedText style={styles.title}>Asset Swap</ThemedText>
-          <View style={styles.statsContainer}>
-            <Ionicons name="trending-up-outline" size={20} color="#ffffff" />
-            <ThemedText style={styles.statsText}>Market is up 0.5%</ThemedText>
-          </View>
-        </LinearGradient>
-
+       <View style={styles.titleContainer}>
+         <ThemedText style={styles.title}>Swap</ThemedText>
+       </View>
+      
         <ScrollView style={styles.content}>
           <View style={styles.swapContainer}>
             <View style={styles.inputContainer}>
@@ -46,13 +38,13 @@ export default function TokenSwapScreen() {
                 />
                 <TouchableOpacity style={styles.tokenSelector}>
                   <ThemedText style={styles.tokenText}>{fromToken}</ThemedText>
-                  <Ionicons name="chevron-down" size={24} color="#3949ab" />
+                  <Ionicons name="chevron-down" size={24} color="#BB86FC" />
                 </TouchableOpacity>
               </View>
             </View>
 
             <TouchableOpacity style={styles.swapButton}>
-              <Ionicons name="swap-vertical" size={24} color="#fff" />
+              <Ionicons name="swap-vertical" size={24} color="#BB86FC" />
             </TouchableOpacity>
 
             <View style={styles.inputContainer}>
@@ -61,32 +53,27 @@ export default function TokenSwapScreen() {
                 <ThemedText style={styles.input}>0.0</ThemedText>
                 <TouchableOpacity style={styles.tokenSelector}>
                   <ThemedText style={styles.tokenText}>{toToken}</ThemedText>
-                  <Ionicons name="chevron-down" size={24} color="#3949ab" />
+                  <Ionicons name="chevron-down" size={24} color="#BB86FC" />
                 </TouchableOpacity>
               </View>
             </View>
           </View>
 
           <TouchableOpacity style={styles.swapActionButton}>
-            <LinearGradient
-              colors={['#3949ab', '#5c6bc0']}
-              style={styles.swapActionGradient}
-            >
-              <ThemedText style={styles.swapActionButtonText}>Swap Tokens</ThemedText>
-            </LinearGradient>
+            <ThemedText style={styles.swapActionButtonText}>Swap Tokens</ThemedText>
           </TouchableOpacity>
 
           <ThemedText style={styles.recentSwapsTitle}>Recent Swaps</ThemedText>
           {tokens.map((token, index) => (
             <View key={index} style={styles.recentSwapItem}>
               <View style={[styles.tokenIconContainer, { backgroundColor: token.color }]}>
-                {/* <Ionicons name={token.icon} size={20} color="#fff" /> */}
+                <Ionicons name={token.icon as keyof typeof Ionicons.glyphMap} size={20} color="#fff" />
               </View>
               <View style={styles.swapItemContent}>
                 <ThemedText style={styles.swapItemTitle}>{token.name}</ThemedText>
                 <ThemedText style={styles.swapItemSubtitle}>1 {token.symbol} = 1,234.56 USD</ThemedText>
               </View>
-              <Ionicons name="chevron-forward" size={24} color="#3949ab" />
+              <Ionicons name="chevron-forward" size={24} color="#BB86FC" />
             </View>
           ))}
         </ScrollView>
@@ -98,21 +85,24 @@ export default function TokenSwapScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#1a237e',
+    backgroundColor: '#121212',
   },
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#121212',
   },
   header: {
     padding: 20,
     paddingTop: 20,
   },
+  titleContainer: {
+    alignItems: 'center',
+    paddingTop: 16,
+  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#ffffff',
-    marginBottom: 10,
+    color: '#BB86FC',
   },
   statsContainer: {
     flexDirection: 'row',
@@ -127,7 +117,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   swapContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: '#1E1E1E',
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
@@ -144,25 +134,25 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 10,
-    color: '#212121',
+    color: '#BB86FC',
   },
   tokenInput: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: '#333333',
     borderRadius: 8,
   },
   input: {
     flex: 1,
     padding: 10,
     fontSize: 18,
-    color: '#212121',
+    color: '#ffffff',
   },
   tokenSelector: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#333333',
     padding: 10,
     borderTopRightRadius: 8,
     borderBottomRightRadius: 8,
@@ -171,11 +161,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginRight: 5,
-    color: '#212121',
+    color: '#ffffff',
   },
   swapButton: {
     alignSelf: 'center',
-    backgroundColor: '#3949ab',
+    backgroundColor: '#1E1E1E',
     borderRadius: 20,
     padding: 10,
     marginVertical: 10,
@@ -184,13 +174,12 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
     marginBottom: 20,
-  },
-  swapActionGradient: {
+    backgroundColor: '#BB86FC',
     padding: 15,
     alignItems: 'center',
   },
   swapActionButtonText: {
-    color: '#fff',
+    color: '#ffffff',
     fontSize: 18,
     fontWeight: '600',
   },
@@ -198,12 +187,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 16,
-    color: '#212121',
+    color: '#BB86FC',
   },
   recentSwapItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#1E1E1E',
     borderRadius: 16,
     marginBottom: 15,
     padding: 15,
@@ -227,11 +216,11 @@ const styles = StyleSheet.create({
   swapItemTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#212121',
+    color: '#ffffff',
   },
   swapItemSubtitle: {
     fontSize: 14,
-    color: '#757575',
+    color: '#BB86FC',
     marginTop: 2,
   },
 });

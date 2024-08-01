@@ -1,7 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity, SafeAreaView, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 
 export default function ActivityScreen() {
   const transactions = [
@@ -11,7 +10,7 @@ export default function ActivityScreen() {
     { id: 4, type: 'Sent', amount: '75 XRP', recipient: 'Charlie', date: '2023-04-20', status: 'Pending' },
   ];
 
-  const getTransactionIcon = (type) => {
+  const getTransactionIcon = (type: string): string => {
     switch (type) {
       case 'Sent':
         return 'arrow-up-outline';
@@ -32,17 +31,14 @@ export default function ActivityScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <LinearGradient
-          colors={['#1a237e', '#3949ab']}
-          style={styles.header}
-        >
+        <View style={styles.header}>
           <Text style={styles.headerTitle}>Activity</Text>
-        </LinearGradient>
+        </View>
         <ScrollView style={styles.content}>
           {sortedTransactions.map((transaction) => (
             <TouchableOpacity key={transaction.id} style={styles.transactionItem}>
               <View style={styles.transactionIcon}>
-                <Ionicons name={getTransactionIcon(transaction.type)} size={24} color="#3949ab" />
+                <Ionicons name={getTransactionIcon(transaction.type) as keyof typeof Ionicons.glyphMap} size={24} color="#BB86FC" />
               </View>
               <View style={styles.transactionInfo}>
                 <Text style={styles.transactionType}>{transaction.type}</Text>
@@ -52,7 +48,7 @@ export default function ActivityScreen() {
               <View style={styles.transactionStatus}>
                 <Text style={[
                   styles.statusText,
-                  { color: transaction.status === 'Completed' ? '#4CAF50' : '#FFC107' }
+                  { color: transaction.status === 'Completed' ? '#03DAC6' : '#FF7597' }
                 ]}>
                   {transaction.status}
                 </Text>
@@ -68,20 +64,20 @@ export default function ActivityScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#1a237e',
+    backgroundColor: '#121212',
   },
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#121212',
   },
   header: {
-    padding: 20,
-    paddingTop: 16,
+    padding: 16,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#BB86FC',
+    textAlign: 'center',
   },
   content: {
     flex: 1,
@@ -90,18 +86,13 @@ const styles = StyleSheet.create({
   transactionItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#1E1E1E',
     borderRadius: 8,
     padding: 16,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    marginBottom: 8,
   },
   transactionIcon: {
-    backgroundColor: '#E8EAF6',
+    backgroundColor: '#2C2C2C',
     borderRadius: 20,
     padding: 8,
     marginRight: 16,
@@ -112,16 +103,16 @@ const styles = StyleSheet.create({
   transactionType: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#212121',
+    color: '#FFFFFF',
   },
   transactionAmount: {
     fontSize: 14,
-    color: '#757575',
+    color: '#BB86FC',
     marginTop: 4,
   },
   transactionDate: {
     fontSize: 12,
-    color: '#9E9E9E',
+    color: '#757575',
     marginTop: 4,
   },
   transactionStatus: {
