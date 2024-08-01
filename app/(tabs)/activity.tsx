@@ -4,15 +4,15 @@ import { Ionicons } from '@expo/vector-icons';
 
 export default function ActivityScreen() {
   const transactions = [
-    { id: 1, type: 'Swapped', amount: '+30,973.89986 USDC', secondaryAmount: '-174.60275 SOL', platform: 'Jupiter', date: 'Yesterday' },
-    { id: 2, type: 'Swapped', amount: '+164.7055 SOL', secondaryAmount: '-30,000.03266 PYUSD', platform: 'Jupiter', date: 'Yesterday' },
-    { id: 3, type: 'Sent', amount: '-125.92M MUMU', recipient: 'LJ Hot (LJ2X...Vnqq)', date: 'Yesterday' },
-    { id: 4, type: 'Swapped', amount: '+325.92M MUMU', secondaryAmount: '-30,000.03266 PYUSD', platform: 'Jupiter', date: 'Yesterday' },
-    { id: 5, type: 'Received', amount: '+< 0.00001 SOL', sender: '2RMY...Vnqq', date: 'Yesterday' },
-    { id: 6, type: 'Received', amount: '+9.8 SOL', sender: 'LJ Hot (LJ2X...Vnqq)', date: 'Yesterday' },
-    { id: 7, type: 'Received', amount: '+< 0.00001 SOL', sender: 'Habp...4E96', date: 'Yesterday' },
-    { id: 8, type: 'Received', amount: '+< 0.00001 SOL', sender: 'FLiP...eaZ7', date: 'Yesterday' },
-    { id: 9, type: 'Sent', amount: '-2.119 PYUSD', recipient: 'Unknown', date: 'Yesterday' },
+    { id: 1, type: 'Swapped', amount: '+1000.00 XRP', secondaryAmount: '-500.00 USD', platform: 'XRPL DEX', date: 'Yesterday' },
+    { id: 2, type: 'Swapped', amount: '+200.00 USD', secondaryAmount: '-100.00 XRP', platform: 'XRPL DEX', date: 'Yesterday' },
+    { id: 3, type: 'Sent', amount: '-50.00 XRP', recipient: 'rLJ2X...Vnqq', date: 'Yesterday' },
+    { id: 4, type: 'Swapped', amount: '+1000.00 USD', secondaryAmount: '-500.00 XRP', platform: 'XRPL DEX', date: 'Yesterday' },
+    { id: 5, type: 'Received', amount: '+0.00001 XRP', sender: 'r2RMY...Vnqq', date: 'Yesterday' },
+    { id: 6, type: 'Received', amount: '+10.0 XRP', sender: 'rLJ2X...Vnqq', date: 'Yesterday' },
+    { id: 7, type: 'Received', amount: '+0.00001 XRP', sender: 'rHabp...4E96', date: 'Yesterday' },
+    { id: 8, type: 'Received', amount: '+0.00001 XRP', sender: 'rFLiP...eaZ7', date: 'Yesterday' },
+    { id: 9, type: 'Sent', amount: '-5.00 USD', recipient: 'Unknown', date: 'Yesterday' },
   ];
 
   const getTransactionIcon = (type: string): string => {
