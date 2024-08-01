@@ -1,66 +1,195 @@
-import React from 'react';
-import { StyleSheet, View, ScrollView, TouchableOpacity, SafeAreaView, Text } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, ScrollView, TouchableOpacity, SafeAreaView, Text, ActivityIndicator, RefreshControl, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import axios from 'axios';
+
+const XRPL_API_ENDPOINT = 'https://xrplcluster.com/';
+const XRP_WALLET_ADDRESS = 'rPjYcrLKwUXb6STyqfK5J1XcTZBA4HLYLf';
 
 export default function ActivityScreen() {
-  const transactions = [
-    { id: 1, type: 'Swapped', amount: '+1000.00 XRP', secondaryAmount: '-500.00 USD', platform: 'XRPL DEX', date: 'Yesterday' },
-    { id: 2, type: 'Swapped', amount: '+200.00 USD', secondaryAmount: '-100.00 XRP', platform: 'XRPL DEX', date: 'Yesterday' },
-    { id: 3, type: 'Sent', amount: '-50.00 XRP', recipient: 'rLJ2X...Vnqq', date: 'Yesterday' },
-    { id: 4, type: 'Swapped', amount: '+1000.00 USD', secondaryAmount: '-500.00 XRP', platform: 'XRPL DEX', date: 'Yesterday' },
-    { id: 5, type: 'Received', amount: '+0.00001 XRP', sender: 'r2RMY...Vnqq', date: 'Yesterday' },
-    { id: 6, type: 'Received', amount: '+10.0 XRP', sender: 'rLJ2X...Vnqq', date: 'Yesterday' },
-    { id: 7, type: 'Received', amount: '+0.00001 XRP', sender: 'rHabp...4E96', date: 'Yesterday' },
-    { id: 8, type: 'Received', amount: '+0.00001 XRP', sender: 'rFLiP...eaZ7', date: 'Yesterday' },
-    { id: 9, type: 'Sent', amount: '-5.00 USD', recipient: 'Unknown', date: 'Yesterday' },
-  ];
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState(null);
 
-  const getTransactionIcon = (type: string): string => {
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
+
+  const fetchTransactions = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      console.log('Fetching transactions...');
+      const response = await axios.post(XRPL_API_ENDPOINT, {
+        method: 'account_tx',
+        params: [{
+          account: XRP_WALLET_ADDRESS,
+          limit: 20
+        }]
+      });
+  
+      console.log('Response received:', JSON.stringify(response.data, null, 2));
+  
+      if (response.data.result.status !== 'success') {
+        throw new Error(`API returned non-success status: ${response.data.result.status}`);
+      }
+  
+      if (!response.data.result.transactions || !Array.isArray(response.data.result.transactions)) {
+        throw new Error('Invalid or missing transactions in API response');
+      }
+  
+      const processedTransactions = response.data.result.transactions.map(processTransaction);
+      setTransactions(processedTransactions);
+    } catch (err) {
+      console.error('Error fetching transactions:', err);
+      if (axios.isAxiosError(err)) {
+        if (err.response) {
+          console.error('Error response:', err.response.data);
+          console.error('Error status:', err.response.status);
+          console.error('Error headers:', err.response.headers);
+          setError(`Failed to fetch transactions. Server responded with status ${err.response.status}.`);
+        } else if (err.request) {
+          console.error('Error request:', err.request);
+          setError('Failed to fetch transactions. No response received from server.');
+        } else {
+          console.error('Error message:', err.message);
+          setError(`Failed to fetch transactions: ${err.message}`);
+        }
+      } else {
+        console.error('Error message:', err instanceof Error ? err.message : String(err));
+        setError(`Failed to fetch transactions: ${err instanceof Error ? err.message : String(err)}`);
+      }
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchTransactions();
+  };
+
+  const processTransaction = (tx) => {
+    const transaction = tx.tx;
+    let type, amount, currency, recipient, sender, details;
+
+    const rippleEpoch = new Date('2000-01-01T00:00:00Z').getTime() / 1000;
+    const transactionDate = new Date((rippleEpoch + transaction.date) * 1000);
+
+    switch (transaction.TransactionType) {
+      case 'Payment':
+        type = transaction.Account === XRP_WALLET_ADDRESS ? 'Sent' : 'Received';
+        if (typeof transaction.Amount === 'object') {
+          amount = transaction.Amount.value;
+          currency = transaction.Amount.currency;
+        } else {
+          amount = (transaction.Amount / 1000000).toString();
+          currency = 'XRP';
+        }
+        amount = type === 'Sent' ? `-${amount}` : `+${amount}`;
+        recipient = transaction.Destination;
+        sender = transaction.Account;
+        break;
+      case 'TrustSet':
+        type = 'Trust Line Set';
+        amount = transaction.LimitAmount.value;
+        currency = transaction.LimitAmount.currency;
+        recipient = transaction.LimitAmount.issuer;
+        break;
+      // Add other cases as needed
+      default:
+        type = transaction.TransactionType;
+        amount = 'Unknown';
+        currency = '';
+    }
+
+    return {
+      id: transaction.hash,
+      type,
+      amount,
+      currency,
+      recipient,
+      sender,
+      details,
+      date: transactionDate.toLocaleDateString(),
+    };
+  };
+
+  const getTransactionIcon = (type) => {
     switch (type) {
       case 'Sent':
         return 'arrow-up-outline';
       case 'Received':
         return 'arrow-down-outline';
-      case 'Swapped':
-        return 'swap-horizontal-outline';
+      case 'Trust Line Set':
+        return 'link-outline';
       default:
         return 'ellipsis-horizontal-outline';
     }
   };
+
+  const openTransactionInXRPScan = (txId) => {
+    Linking.openURL(`https://xrpscan.com/tx/${txId}`);
+  };
+
+  const formatAmount = (amount, currency) => {
+    const formattedAmount = parseFloat(amount).toExponential(2);
+    return `${formattedAmount} ${currency}`;
+  };
+
+  const renderTransactionItem = (transaction) => (
+    <TouchableOpacity 
+      key={transaction.id} 
+      style={styles.transactionItem}
+      onPress={() => openTransactionInXRPScan(transaction.id)}
+    >
+      <View style={styles.transactionIconContainer}>
+        <Ionicons name={getTransactionIcon(transaction.type)} size={24} color="#fff" />
+      </View>
+      <View style={styles.transactionInfo}>
+        <Text style={styles.transactionType}>{transaction.type}</Text>
+        {transaction.recipient && (
+          <Text style={styles.transactionDetails}>To: {transaction.recipient.substring(0, 8)}...</Text>
+        )}
+        {transaction.sender && transaction.sender !== XRP_WALLET_ADDRESS && (
+          <Text style={styles.transactionDetails}>From: {transaction.sender.substring(0, 8)}...</Text>
+        )}
+      </View>
+      <View style={styles.transactionAmounts}>
+        <Text style={[styles.transactionAmount, { color: transaction.amount.startsWith('-') ? '#FF5252' : '#4CAF50' }]}>
+          {formatAmount(transaction.amount.replace(/[+-]/, ''), transaction.currency)}
+        </Text>
+        <Text style={styles.transactionDate}>{transaction.date}</Text>
+      </View>
+    </TouchableOpacity>
+  );
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Recent Activity</Text>
-          <TouchableOpacity>
-            <Ionicons name="ellipsis-horizontal" size={24} color="#fff" />
+          <TouchableOpacity onPress={fetchTransactions}>
+            <Ionicons name="refresh" size={24} color="#fff" />
           </TouchableOpacity>
         </View>
-        <ScrollView style={styles.content}>
-          <Text style={styles.dateHeader}>Yesterday</Text>
-          {transactions.map((transaction) => (
-            <View key={transaction.id} style={styles.transactionItem}>
-              <View style={styles.transactionIconContainer}>
-                <Ionicons name={getTransactionIcon(transaction.type)} size={24} color="#fff" />
-              </View>
-              <View style={styles.transactionInfo}>
-                <Text style={styles.transactionType}>{transaction.type}</Text>
-                {transaction.platform && <Text style={styles.transactionPlatform}>{transaction.platform}</Text>}
-                {transaction.recipient && <Text style={styles.transactionRecipient}>To {transaction.recipient}</Text>}
-                {transaction.sender && <Text style={styles.transactionSender}>From {transaction.sender}</Text>}
-              </View>
-              <View style={styles.transactionAmounts}>
-                <Text style={[styles.transactionAmount, { color: transaction.amount.startsWith('+') ? '#4CAF50' : '#fff' }]}>
-                  {transaction.amount}
-                </Text>
-                {transaction.secondaryAmount && (
-                  <Text style={styles.transactionSecondaryAmount}>{transaction.secondaryAmount}</Text>
-                )}
-              </View>
-            </View>
-          ))}
-        </ScrollView>
+        {loading && !refreshing ? (
+          <ActivityIndicator size="large" color="#BB86FC" />
+        ) : error ? (
+          <Text style={styles.errorText}>{error}</Text>
+        ) : (
+          <ScrollView 
+            style={styles.content}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+          >
+            {transactions.map(renderTransactionItem)}
+          </ScrollView>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -91,12 +220,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
   },
-  dateHeader: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#888',
-    marginBottom: 8,
-  },
   transactionItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -119,20 +242,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
   },
-  transactionPlatform: {
+  transactionDetails: {
     fontSize: 14,
     color: '#888',
-    marginTop: 2,
-  },
-  transactionRecipient: {
-    fontSize: 14,
-    color: '#888',
-    marginTop: 2,
-  },
-  transactionSender: {
-    fontSize: 14,
-    color: '#888',
-    marginTop: 2,
   },
   transactionAmounts: {
     alignItems: 'flex-end',
@@ -141,9 +253,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
   },
-  transactionSecondaryAmount: {
-    fontSize: 14,
-    color: '#888',
-    marginTop: 2,
+  transactionDate: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 4,
+  },
+  errorText: {
+    color: '#FF5252',
+    textAlign: 'center',
+    marginTop: 20,
   },
 });
