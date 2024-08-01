@@ -6,6 +6,13 @@ import axios from 'axios';
 
 import { HelloWave } from '@/components/HelloWave';
 
+interface XRPData {
+  balance: number;
+  price: number;
+  currencies?: string[];
+  trustLines?: any[]; 
+}
+
 const { width } = Dimensions.get('window');
 const buttonWidth = (width - 48) / 3 - 8;
 const buttonHeight = 80;
@@ -29,7 +36,8 @@ export default function HomeScreen() {
       try {
         setLoading(true);
         setError(null);
-
+  
+        // Fetch account info (including XRP balance)
         const balanceResponse = await axios.post(XRPL_API_ENDPOINT, {
           method: 'account_info',
           params: [
@@ -43,12 +51,45 @@ export default function HomeScreen() {
         });
         
         const balance = parseFloat(balanceResponse.data.result.account_data.Balance) / 1000000;
-
+  
+        // Fetch account currencies
+        const currenciesResponse = await axios.post(XRPL_API_ENDPOINT, {
+          method: 'account_currencies',
+          params: [
+            {
+              account: XRP_WALLET_ADDRESS,
+              strict: true,
+              ledger_index: 'current'
+            }
+          ]
+        });
+  
+        const currencies = currenciesResponse.data.result.receive_currencies;
+  
+        // Fetch account lines (trust lines and their balances)
+        const linesResponse = await axios.post(XRPL_API_ENDPOINT, {
+          method: 'account_lines',
+          params: [
+            {
+              account: XRP_WALLET_ADDRESS,
+              ledger_index: 'current'
+            }
+          ]
+        });
+  
+        const trustLines = linesResponse.data.result.lines;
+  
+        // Fetch XRP price
         const priceResponse = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=ripple&vs_currencies=usd');
         const price = priceResponse.data.ripple.usd;
-
+  
         if (isMounted) {
-          setXrpData({ balance, price });
+          setXrpData({
+            balance,
+            price,
+            currencies,
+            trustLines
+          });
           setLoading(false);
         }
       } catch (err) {
@@ -59,13 +100,14 @@ export default function HomeScreen() {
         }
       }
     };
-
+  
     fetchXRPData();
-
+  
     return () => {
       isMounted = false;
     };
   }, []);
+  
   const handleReceivePress = () => {
     setShowQRModal(true);
   };
@@ -131,29 +173,45 @@ export default function HomeScreen() {
               </TouchableOpacity>
             ))}
           </View>
-          
           <View style={styles.assetsContainer}>
             <Text style={styles.assetsTitle}>Your Assets</Text>
-            {[
-              { name: 'Bitcoin', icon: 'logo-bitcoin', color: '#F7931A', balance: '0.5 BTC', value: '$15,000', type: 'Your' },
-              { name: 'Twitter', icon: 'logo-twitter', color: '#1DA1F2', balance: '2.5 Shares', value: '$5,000', type: 'Your' },
-              { name: 'Tether', icon: 'ellipse', color: '#26A17B', balance: '1000 USDT', value: '$1,000', type: 'Your' },
-              { name: 'Trustlines', icon: 'logo-bitcoin', color: '#F7931A', balance: '0.5 BTC', value: '$15,000', type: 'Reserved' },
-              { name: 'IOUs', icon: 'ellipse', color: '#26A17B', balance: '1000 USDT', value: '$1,000', type: 'Reserved' },
-            ].map((asset, index) => (
-              <View key={asset.name} style={[styles.assetItem, index === 2 && styles.lastAssetItem]}>
-                {asset.type === 'Your' && (
-                  <View style={[styles.assetIcon, { backgroundColor: asset.color }]}>
-                    <Ionicons name={asset.icon as any} size={20} color="#fff" />
+            {xrpData.trustLines && xrpData.trustLines.length > 0 ? (
+              [
+                { currency: 'XRP', balance: xrpData.balance, price: xrpData.price, isTrustline: false },
+                ...xrpData.trustLines.map(line => ({
+                  ...line,
+                  isTrustline: true
+                }))
+              ].map((asset, index, array) => (
+                <View key={asset.currency} style={[styles.assetItem, index === array.length - 1 && styles.lastAssetItem]}>
+                  <View style={[styles.assetIcon, { backgroundColor: asset.currency === 'XRP' ? '#3949ab' : '#5c6bc0' }]}>
+                    <Ionicons name={asset.currency === 'XRP' ? "logo-bitcoin" : "cash-outline"} size={20} color="#fff" />
                   </View>
-                )}
-                <Text style={styles.assetName}>{asset.name}</Text>
-                <Text style={styles.assetBalance}>{asset.balance}</Text>
-                <Text style={styles.assetValue}>{asset.value}</Text>
-              </View>
-            ))}
+                  <View style={styles.assetInfo}>
+                    <Text style={styles.assetName}>
+                      {asset.currency.length > 8 ? `${asset.currency.slice(0, 8)}...` : asset.currency}
+                    </Text>
+                    {asset.isTrustline && (
+                      <Text style={styles.trustlineIndicator}>Trustline</Text>
+                    )}
+                  </View>
+                  <View style={styles.assetValues}>
+                    <Text style={styles.assetBalance}>
+                      {parseFloat(asset.balance).toFixed(2)}
+                    </Text>
+                    <Text style={styles.assetValue}>
+                      {asset.currency === 'XRP' 
+                        ? `$${(parseFloat(asset.balance) * asset.price).toFixed(2)}`
+                        : 'N/A'}
+                    </Text>
+                  </View>
+                </View>
+              ))
+            ) : (
+              <Text style={styles.noDataText}>No assets available</Text>
+            )}
           </View>
-
+       
           <Modal visible={showQRModal} animationType="slide">
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
               <View style={{ backgroundColor: '#f0f0f0', padding: 16, borderRadius: 8 }}>
@@ -263,6 +321,15 @@ const styles = StyleSheet.create({
     color: '#4CAF50',
     marginLeft: 4,
   },
+  balancePriceContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  balancePrice: {
+    fontSize: 14,
+    color: '#757575',
+  },
   actionsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -337,6 +404,60 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#212121',
   },
+  currenciesContainer: {
+    marginHorizontal: 16,
+    marginTop: 24,
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  trustLinesContainer: {
+    marginHorizontal: 16,
+    marginTop: 24,
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    color: '#212121',
+  },
+  currencyItem: {
+    fontSize: 16,
+    color: '#212121',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  trustLineItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  trustLineCurrency: {
+    fontSize: 16,
+    color: '#212121',
+    flex: 1,
+  },
+  trustLineBalance: {
+    fontSize: 14,
+    color: '#757575',
+  },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -351,17 +472,22 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingTop: 40,
   },
+  notificationsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
   notificationsTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 16,
-    marginTop: 16,
+    color: '#212121',
   },
   closeButton: {
-    position: 'absolute',
-    top: 8,
-    right: 0,
-    padding: 10,
+    padding: 8,
+  },
+  notificationsContent: {
+    flexGrow: 1,
   },
   notificationItem: {
     flexDirection: 'row',
@@ -396,5 +522,53 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#9E9E9E',
     marginTop: 4,
+  },
+  qrModalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  qrModalContent: {
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    padding: 24,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  qrImage: {
+    width: 200,
+    height: 200,
+    marginBottom: 16,
+  },
+  qrModalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#212121',
+    marginBottom: 8,
+  },
+  qrModalCloseButton: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    padding: 8,
+  },
+  assetInfo: {
+    flex: 1,
+  },
+  assetValues: {
+    alignItems: 'flex-end',
+  },
+  trustlineIndicator: {
+    fontSize: 12,
+    color: '#4CAF50',
+    marginTop: 2,
+  },
+  infoButton: {
+    marginLeft: 8,
   },
 });
