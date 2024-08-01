@@ -24,7 +24,7 @@ export default function TokenSwapScreen() {
           colors={['#1a237e', '#3949ab']}
           style={styles.header}
         >
-          <ThemedText style={styles.title}>Token Swap</ThemedText>
+          <ThemedText style={styles.title}>Asset Swap</ThemedText>
           <View style={styles.statsContainer}>
             <Ionicons name="trending-up-outline" size={20} color="#ffffff" />
             <ThemedText style={styles.statsText}>Market is up 0.5%</ThemedText>
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#ffffff',
     marginBottom: 10,
