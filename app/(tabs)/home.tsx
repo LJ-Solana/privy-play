@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, ScrollView, TouchableOpacity, Dimensions, View, Modal, Image, Animated, SafeAreaView, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
+import * as SecureStore from 'expo-secure-store';
 
 interface XRPData {
   balance: number;
@@ -47,6 +48,14 @@ export default function HomeScreen() {
         });
         
         const balance = parseFloat(balanceResponse.data.result.account_data.Balance) / 1000000;
+
+        const storedWallet = await SecureStore.getItemAsync('xrplWallet');
+        if (storedWallet) {
+          const parsedWallet = JSON.parse(storedWallet);
+          console.log('XRPL Wallet Public Key:', parsedWallet.publicKey);
+        } else {
+          console.log('No XRPL wallet found in SecureStore');
+        }
   
         // Fetch account currencies
         const currenciesResponse = await axios.post(XRPL_API_ENDPOINT, {
@@ -496,15 +505,6 @@ const styles = StyleSheet.create({
       paddingVertical: 12,
       borderBottomWidth: 1,
       borderBottomColor: '#E0E0E0',
-    },
-    notificationIcon: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
-      backgroundColor: '#E8EAF6',
-      justifyContent: 'center',
-      alignItems: 'center',
-      marginRight: 12,
     },
     notificationContent: {
       flex: 1,

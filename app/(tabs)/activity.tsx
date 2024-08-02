@@ -140,7 +140,15 @@ export default function ActivityScreen() {
     return `${formattedAmount} ${currency}`;
   };
 
-  const renderTransactionItem = (transaction) => (
+  const renderTransactionItem = (transaction: {
+    id: string;
+    type: string;
+    amount: string;
+    currency: string;
+    recipient?: string;
+    sender?: string;
+    date: string;
+  }) => (
     <TouchableOpacity 
       key={transaction.id} 
       style={styles.transactionItem}

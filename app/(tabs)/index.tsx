@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { View, ActivityIndicator } from 'react-native';
-import { useOnboardingStatus } from './onboarding';
-import OnboardingFlow from './onboarding';
-import HomeScreen from './(tabs)/home';
+import { useOnboardingStatus } from '../onboarding';
+import OnboardingFlow from '../onboarding';
+import HomeScreen from './home';
+import 'react-native-get-random-values';
+import 'react-native-crypto';
+
 
 export default function App() {
   const isOnboardingCompleteFromHook = useOnboardingStatus();

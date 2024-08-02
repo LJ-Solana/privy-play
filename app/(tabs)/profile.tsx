@@ -1,8 +1,13 @@
 import React from 'react';
-import { StyleSheet, View, ScrollView, TouchableOpacity, Image, SafeAreaView, Text } from 'react-native';
+import { StyleSheet, View, ScrollView, TouchableOpacity, Image, SafeAreaView, Text, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
+import 'react-native-get-random-values';
 
 export default function ProfileScreen() {
+  const router = useRouter();
+
   const userInfo = {
     name: 'John Doe',
     email: 'john.doe@example.com',
@@ -17,6 +22,30 @@ export default function ProfileScreen() {
     { icon: 'help-circle-outline', title: 'Help & Support' },
     { icon: 'settings-outline', title: 'Settings' },
   ];
+
+  const handleLogout = async () => {
+    Alert.alert(
+      "Logout",
+      "Are you sure you want to log out?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        { 
+          text: "OK", 
+          onPress: async () => {
+            try {
+              router.replace('/signin');
+            } catch (error) {
+              console.error('Error during logout:', error);
+              Alert.alert('Logout Failed', 'An error occurred while logging out. Please try again.');
+            }
+          }
+        }
+      ]
+    );
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -42,7 +71,7 @@ export default function ProfileScreen() {
             ))}
           </View>
 
-          <TouchableOpacity style={styles.logoutButton}>
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
             <Text style={styles.logoutText}>Log Out</Text>
           </TouchableOpacity>
         </ScrollView>
@@ -50,7 +79,6 @@ export default function ProfileScreen() {
     </SafeAreaView>
   );
 }
-
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
